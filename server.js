@@ -40,7 +40,7 @@ app.use("/auth", authRoute);
 mongoose.set("useFindAndModify", false);
 mongoose.set("useUnifiedTopology", true);
 mongoose
-  .connect("database credential", { useNewUrlParser: true })
+  .connect(process.env.DB_CONNECT, { useNewUrlParser: true })
   .then(() => {
     app.listen(process.env.PORT || port, () => {
       console.log("connect");
