@@ -1,6 +1,11 @@
 const User = require('../model/user')
 const {StatusCodes} = require('http-status-codes');
 
+function stripPassword(user) {
+    const {password, ...rest} = user.toJSON ? user.toJSON() : user;
+    return rest;
+}
+
 module.exports.getAllUser = (req, res) => {
   const limit = Number(req.query.limit) || 0
   const sort = req.query.sort == "desc" ? -1 : 1
@@ -9,7 +14,7 @@ module.exports.getAllUser = (req, res) => {
       id: sort
     })
     .then(users => {
-      res.json(users)
+      res.json(users.map(stripPassword))
     })
     .catch(err => console.log(err))
 }
@@ -21,7 +26,7 @@ module.exports.getUser = (req, res) => {
       id
     }).select(['-_id'])
     .then(user => {
-      res.json(user)
+      res.json(stripPassword(user))
     })
     .catch(err => console.log(err))
 }
@@ -34,7 +39,7 @@ module.exports.me = (req, res, next) => {
         })
     }
     const {_id, ...cleanUser} = res.locals.user;
-    return res.json(cleanUser)
+    return res.json(stripPassword(cleanUser))
 }
 
 

@@ -18,7 +18,6 @@ const authMiddleware = async (
             const user = await User.findOne({
                 id: tokenUser.id,
             })
-            console.log(user)
             if (!user) {
                 return next({
                     code: StatusCodes.INTERNAL_SERVER_ERROR,
