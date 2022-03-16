@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+require('dotenv').config()
 
 //app
 const app = express();
@@ -36,6 +37,14 @@ app.use("/carts", cartRoute);
 app.use("/users", userRoute);
 app.use("/auth", authRoute);
 
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    if(err.code) {
+        res.status(err.code).send(err.msg);
+    } else {
+        res.status(500).send('Something broke!')
+    }
+})
 //mongoose
 mongoose.set("useFindAndModify", false);
 mongoose.set("useUnifiedTopology", true);

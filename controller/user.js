@@ -1,4 +1,5 @@
 const User = require('../model/user')
+const {StatusCodes} = require('http-status-codes');
 
 module.exports.getAllUser = (req, res) => {
   const limit = Number(req.query.limit) || 0
@@ -25,9 +26,20 @@ module.exports.getUser = (req, res) => {
     .catch(err => console.log(err))
 }
 
+module.exports.me = (req, res, next) => {
+    if(!res.locals.user) {
+        next({
+            code: StatusCodes.NOT_FOUND,
+            msg: "User not found"
+        })
+    }
+    const {_id, ...cleanUser} = res.locals.user;
+    return res.json(cleanUser)
+}
 
 
-module.exports.addUser = (req, res) => {
+
+module.exports.addUser = (req, res, next) => {
   if (typeof req.body == undefined) {
     res.json({
       status: "error",
@@ -36,7 +48,7 @@ module.exports.addUser = (req, res) => {
   } else {
 
     let userCount = 0;
-    User.find().countDocuments(function (err, count) {
+    User.find().countDocuments(function (err, count, next) {
         userCount = count
       })
       .then(() => {
@@ -46,26 +58,29 @@ module.exports.addUser = (req, res) => {
       username:req.body.username,
       password:req.body.password,
       name:{
-          firstname:req.body.firstname,
-          lastname:req.body.lastname
+          firstname:req.body?.firstname,
+          lastname:req.body?.lastname
       },
       address:{
-          city:req.body.address.city,
-          street:req.body.address.street,
-          number:req.body.number,
-          zipcode:req.body.zipcode,
+          city:req.body?.address?.city,
+          street:req.body?.address?.street,
+          number:req.body?.number,
+          zipcode:req.body?.zipcode,
           geolocation:{
-              lat:req.body.geolocation.lat,
-              long:req.body.geolocation.long
+              lat:req.body?.geolocation?.lat,
+              long:req.body?.geolocation?.long
           }
       },
       phone:req.body.phone
         })
-        // user.save()
-        //   .then(user => res.json(user))
-        //   .catch(err => console.log(err))
-
-        res.json(user)
+        user.save()
+          .then(user => res.json(user))
+          .catch(err => {
+              return next({
+                  code: StatusCodes.INTERNAL_SERVER_ERROR,
+                  msg: "Couldn't create"
+              });
+          })
       })
 
 
