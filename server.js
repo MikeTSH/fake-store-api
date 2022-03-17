@@ -3,13 +3,14 @@ const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-require('dotenv').config()
+const logger = require('morgan');
+require('dotenv').config();
 
 //app
 const app = express();
 
 //port
-const port = 6400;
+const PORT = 6400;
 
 //routes
 const productRoute = require("./routes/product");
@@ -20,6 +21,7 @@ const authRoute = require("./routes/auth");
 
 //middleware
 app.use(cors());
+app.use(logger('dev'));
 
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
@@ -45,14 +47,17 @@ app.use((err, req, res, next) => {
         res.status(500).send('Something broke!')
     }
 })
+
+const port = process.env.PORT || PORT;
+
 //mongoose
 mongoose.set("useFindAndModify", false);
 mongoose.set("useUnifiedTopology", true);
 mongoose
   .connect(process.env.DB_CONNECT, { useNewUrlParser: true })
   .then(() => {
-    app.listen(process.env.PORT || port, () => {
-      console.log("connect");
+    app.listen(port, () => {
+      console.log('Connected and running on port ' + port);
     });
   })
   .catch((err) => {
