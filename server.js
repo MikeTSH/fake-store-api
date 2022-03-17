@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const logger = require('morgan');
+require('dotenv').config();
 
 //app
 const app = express();
@@ -37,6 +38,15 @@ app.use("/products", productRoute);
 app.use("/carts", cartRoute);
 app.use("/users", userRoute);
 app.use("/auth", authRoute);
+
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+    if(err.code) {
+        res.status(err.code).send(err.msg);
+    } else {
+        res.status(500).send('Something broke!')
+    }
+})
 
 const port = process.env.PORT || PORT;
 

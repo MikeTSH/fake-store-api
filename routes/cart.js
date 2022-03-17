@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const cart = require('../controller/cart')
+const { authMiddleware } = require('../middleware/auth.middleware.js');
+
+router.use(authMiddleware)
 
 router.get('/',cart.getAllCarts)
 router.get('/:id',cart.getSingleCart)
